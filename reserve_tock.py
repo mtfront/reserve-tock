@@ -13,10 +13,14 @@ ENABLE_LOGIN = False
 TOCK_USERNAME = "SET_YOUR_USER_NAME_HERE"
 TOCK_PASSWORD = "SET_YOUR_PASSWORD_HERE"
 
+# To find out restaurant name, go to it's reservation page and click book, check network tab search for 
+# https://www.exploretock.com/{name}/search, put the {name} here
+RESTAURANT = "SET_YOUR_RESTAURANT_HERE"
+
 # Set your specific reservation month and days
-RESERVATION_MONTH = 'November'
+RESERVATION_MONTH = 'February'
 RESERVATION_DAYS = ['23', '24', '25']
-RESERVATION_YEAR = '2021'
+RESERVATION_YEAR = '2024'
 RESERVATION_TIME_FORMAT = "%I:%M %p"
 
 # Set the time range for acceptable reservation times.
@@ -27,7 +31,7 @@ RESERVATION_TIME_MIN = datetime.strptime(EARLIEST_TIME, RESERVATION_TIME_FORMAT)
 RESERVATION_TIME_MAX = datetime.strptime(LATEST_TIME, RESERVATION_TIME_FORMAT)
 
 # Set the party size for the reservation
-RESERVATION_SIZE = 4
+RESERVATION_SIZE = 2
 
 # Multithreading configurations
 NUM_THREADS = 1
@@ -69,7 +73,7 @@ MONTH_NUM = {
 }
 
 
-class ReserveTFL():
+class Reserve():
     def __init__(self):
         options = Options()
         if ENABLE_PROXY:
@@ -91,7 +95,7 @@ class ReserveTFL():
 
         while not RESERVATION_FOUND:
             time.sleep(REFRESH_DELAY_MSEC / 1000)
-            self.driver.get("https://www.exploretock.com/tfl/search?date=%s-%s-02&size=%s&time=%s" % (RESERVATION_YEAR, month_num(RESERVATION_MONTH), RESERVATION_SIZE, "22%3A00"))
+            self.driver.get("https://www.exploretock.com/%s/search?date=%s-%s-02&size=%s&time=%s" % (RESTAURANT, RESERVATION_YEAR, month_num(RESERVATION_MONTH), RESERVATION_SIZE, "22%3A00"))
             WebDriverWait(self.driver, WEBDRIVER_TIMEOUT_DELAY_MS).until(expected_conditions.presence_of_element_located((By.CSS_SELECTOR, "div.ConsumerCalendar-month")))
 
             if not self.search_month():
@@ -163,7 +167,7 @@ def month_num(month):
 
 
 def run_reservation():
-    r = ReserveTFL()
+    r = Reserve()
     r.reserve()
     r.teardown()
 
